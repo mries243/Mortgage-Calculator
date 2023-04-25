@@ -1,0 +1,243 @@
+/* This program calculates monthly payment for a fixed-rate mortgage loan based on user input.
+ * It prompts the user for information including the purchase price, annual interest
+ * rate, and loan term in years. Also prompts user for annual HOA fees, annual
+ * property taxes, and annual homeowner's insurance estimates, and calculates their monthly costs. */
+
+#include <iostream>
+#include <iomanip>
+#include <cmath> // included for use of pow function
+using namespace std;
+
+class MortgagePayment { // Class MortgagePayment
+public: // Access specifier
+    // Attributes
+    char name[30]{};
+    char address[100]{};
+    int num_payments{},years{};
+    double term = 0;
+    double monthly_int_rate{};
+    double monthly_payment{},total_monthly_cost{};
+    double annual_HOA{},loan_amt{},annual_home_ins{},annual_prop_taxes{},monthly_mortgage{};
+    double monthly_home_ins{},monthly_prop_taxes{}, annual_int_rate{},monthly_HOA_cost{};
+
+    // Methods of class Mortgage Payment
+    // Function to calculate monthly HOA cost
+    // Static because function doesn't depend on class attributes, only takes input values
+    static double calc_monthly_HOA(const double *annual_HOA) {
+        return *annual_HOA / 12;
+    }
+
+// Function to calculate monthly property tax cost
+    static double calc_monthly_prop_taxes(const double *annual_prop_taxes) {
+        return *annual_prop_taxes / 12;
+    }
+
+// Function to calculate monthly homeowner's insurance
+    static double calc_monthly_home_ins(const double *annual_home_ins) {
+        return *annual_home_ins / 12;
+    }
+};
+
+int main() {
+    MortgagePayment mortgage[3]; // create 3 objects for mortgage to calculate 3 mortgage payments
+    double loan_amt;
+    double annual_int_rate;
+    double remaining_bal;
+    for (int i = 0; i < 3; i++) {
+        if (i == 0) {
+// Ask for user's name
+            cout << "Hi, What is your name? " << endl;
+            cin.getline(mortgage[i].name, 100);
+
+// Greet the user
+            cout << "Hello" << " " << mortgage[i].name << "." << endl;
+            cout << "Let's get started with calculating your mortgage payments!" << endl;
+            cout << "First I need to gather some information ... " << endl;
+            cout << "Please note this program is currently only compatible with fixed-rate loans." << endl;
+        }
+
+// Ask for property address
+        cout << "Please provide the address of the property?" << endl;
+        cin.getline(mortgage[i].address, 100);
+// Ask for loan amount
+        cout << "Please provide the total loan amount excluding the down payment. (Please exclude dollar sign and comma characters "
+                "(e.g., 200000.00))" << endl;
+        cin >> loan_amt;
+        //
+        while (cin.fail() || cin.eof()) { // cin.fail returns true when an input failure occurs - if input is not a double
+            if (cin.eof()) { // cin.eof used to check end of file errors
+                cout << "End of input detected. Exiting..." << endl;
+                exit(1);
+            }
+            cout << "Invalid input. Please provide the loan amount excluding the down payment: " << endl;
+            cin.clear(); // used to clear error state of buffer so that further processing of input can take place
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // ignores rest of line after the first instance of error
+            cin >> loan_amt;
+        }
+
+// Ask for annual interest rate
+        cout << "Please provide the annual interest rate? (Please place in decimal form and exclude "
+                "percentage symbol (e.g., .05))" << endl;
+        cin >> annual_int_rate;
+// Validate input for annual interest rate
+        while (cin.fail() || cin.eof()) {
+            if (cin.eof()) {
+                cout << "End of input detected. Exiting..." << endl;
+                exit(1);
+            }
+            cout << "Invalid input. Please provide the annual interest rate: " << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin >> annual_int_rate;
+        }
+// Ask for loan terms in years
+        cout << "Please provide the fixed-rate loan term in years. (Please exclude decimal place (e.g., 30))" << endl;
+        cin >> mortgage[i].years;
+// Validate input for loan terms
+        while (cin.fail() || cin.eof()) {
+            if (cin.eof()) {
+                cout << "End of input detected. Exiting..." << endl;
+                exit(1);
+            }
+            cout << "Invalid input. Please provide the loan term in years: " << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin >> mortgage[i].years;
+        }
+
+// Ask for annual HOA fees
+        cout << "Please provide the annual HOA fees if applicable. Input 0 if there are none. "
+                "(Please exclude dollar sign and comma characters "
+                "(e.g., 300.00))" << endl;
+        cin >> mortgage[i].annual_HOA;
+// Validate input for annual HOA fees
+        while (cin.fail() || cin.eof()) {
+            if (cin.eof()) {
+                cout << "End of input detected. Exiting..." << endl;
+                exit(1);
+            }
+            cout << "Invalid input. Please provide the annual HOA fees: " << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin >> mortgage[i].annual_HOA;
+        }
+// Ask for annual property tax estimate
+        cout << "Please provide an annual property tax estimate: "
+                "(Please exclude dollar sign and comma characters "
+                "(e.g., 2140.00))" << endl;
+        cin >> mortgage[i].annual_prop_taxes;
+// Validate input for annual property taxes
+        while (cin.fail() || cin.eof()) {
+            if (cin.eof()) {
+                cout << "End of input detected. Exiting..." << endl;
+                exit(1);
+            }
+            cout << "Invalid input. Please provide the annual property tax estimate: " << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin >> mortgage[i].annual_prop_taxes;
+        }
+// Ask for annual homeowner's insurance estimate
+        cout
+                << "Please provide an annual homeowner's insurance estimate if applicable. (Please exclude dollar sign and comma characters "
+                   "(e.g., 3240.23)) " << endl;
+        cin >> mortgage[i].annual_home_ins;
+// Validate input for loan term
+        while (cin.fail() || cin.eof()) {
+            if (cin.eof()) {
+                cout << "End of input detected. Exiting..." << endl;
+                exit(1);
+            }
+            cout << "Invalid input. Please provide the annual homeowner's insurance estimate: " << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin >> mortgage[i].annual_home_ins;
+        }
+
+        // Calculate monthly interest rate
+        mortgage[i].monthly_int_rate = mortgage[i].annual_int_rate / 12;
+
+        // Calculate the number of monthly payments
+        mortgage[i].num_payments = mortgage[i].years * 12;
+
+        // Calculate the mortgage term
+        mortgage[i].term = pow(1 + mortgage[i].monthly_int_rate, mortgage[i].num_payments);
+
+        // Calculate the monthly mortgage payment
+        mortgage[i].monthly_payment =
+                (mortgage[i].loan_amt * mortgage[i].monthly_int_rate * mortgage[i].term) / (mortgage[i].term - 1);
+
+        // Calculate monthly HOA cost
+        mortgage[i].monthly_HOA_cost = MortgagePayment::calc_monthly_HOA(&mortgage[i].annual_HOA);
+
+        // Calculate monthly property tax cost
+        mortgage[i].monthly_prop_taxes = MortgagePayment::calc_monthly_prop_taxes(&mortgage[i].annual_prop_taxes);
+
+        // Calculate monthly homeowner's insurance cost
+        mortgage[i].monthly_home_ins = MortgagePayment::calc_monthly_home_ins(&mortgage[i].annual_home_ins);
+
+        // Calculate total monthly cost
+        mortgage[i].total_monthly_cost = mortgage[i].monthly_payment + mortgage[i].monthly_HOA_cost +
+                                         mortgage[i].monthly_prop_taxes + mortgage[i].monthly_home_ins;
+
+// Calculates number of payments based on the number of years
+        mortgage[i].num_payments = mortgage[i].years * 12;
+// Calculates monthly interest rate based on the annual interest rate
+        mortgage[i].monthly_int_rate = annual_int_rate / 12.0;
+// Calculates term using monthly interest rate and number of payments
+        mortgage[i].term = pow((1 + mortgage[i].monthly_int_rate), mortgage[i].num_payments);
+// Calculates monthly mortgage payment using loan amount and term
+        mortgage[i].monthly_mortgage = loan_amt * mortgage[i].monthly_int_rate * mortgage[i].term / (mortgage[i].term - 1.0);
+
+// Function calls to calculate monthly HOA, property taxes, and home insurance
+        mortgage[i].monthly_HOA_cost = MortgagePayment::calc_monthly_HOA(&mortgage[i].annual_HOA);
+        mortgage[i].monthly_prop_taxes = MortgagePayment::calc_monthly_prop_taxes(&mortgage[i].annual_prop_taxes);
+        mortgage[i].monthly_home_ins = MortgagePayment::calc_monthly_home_ins(&mortgage[i].annual_home_ins);
+
+// Calculates total monthly cost including mortgage payment, HOA, property taxes, and home insurance
+        mortgage[i].total_monthly_cost =
+                mortgage[i].monthly_mortgage + mortgage[i].monthly_HOA_cost + mortgage[i].monthly_prop_taxes +
+                mortgage[i].monthly_home_ins;
+
+// Print out results to the console
+// Fixed - decimal point will always appear in same position, regardless of size of number
+// Show point - forces display of decimal point even if there are no digits after it
+// 2 digits after decimal point
+        cout << fixed << showpoint << setprecision(2);
+        cout << mortgage[i].name << " I'm all done calculating your mortgage information for " << mortgage[i].address << endl;
+        cout << "Your monthly HOA costs are " << "$" << mortgage[i].monthly_HOA_cost << endl;
+        cout << "Your monthly property taxes are " << "$" << mortgage[i].monthly_prop_taxes << endl;
+        cout << "Your monthly homeowner's insurance costs are " << "$" << mortgage[i].monthly_home_ins << endl;
+        cout << "Your monthly payment is $" << mortgage[i].monthly_mortgage << endl;
+        cout << "Your monthly payment including HOA costs, property taxes, and homeowner's insurance is $"
+             << mortgage[i].total_monthly_cost << endl;
+
+// Print out mortgage amortization table of each monthly payment
+        cout << fixed << showpoint << setprecision(2);
+        cout << endl;
+        cout << setw(5) << "Month" << setw(10) << "Interest";
+        cout << setw(10) << "Principal" << setw(9) << "Balance" << endl;
+        cout << " ___________________________________________\n";
+
+// Calculates remaining balance and prints out breakdown for each month
+        remaining_bal = loan_amt;
+
+        for (int month = 1; month <= mortgage[i].num_payments; month++) {
+            double monthly_interest, principal;
+            monthly_interest = mortgage[i].monthly_int_rate * remaining_bal;
+            if (month != mortgage[i].num_payments)
+                principal = mortgage[i].monthly_mortgage - monthly_interest;
+
+            else {
+                principal = remaining_bal;
+                mortgage[i].monthly_mortgage = remaining_bal + monthly_interest;
+            }
+            remaining_bal -= principal;
+
+            cout << setw(4) << month << setw(10) << monthly_interest;
+            cout << setw(10) << principal << setw(10) << remaining_bal << endl;
+        }
+    }
+// Return 0 to indicate successful execution of program
+    return 0;
+}
